@@ -61,7 +61,7 @@ public class IfcController {
     @PostMapping("/merge")
     @ResponseBody
     public ResponseEntity<String> merge(@RequestParam("file") MultipartFile file, long mergeFile2, Optional<String> name, Optional<String> description) {
-        String paramName = name.orElse(UUID.randomUUID().toString() + "name");
+        String paramName = name.orElse(UUID.randomUUID().toString());
         String paramDescription = description.orElse("");
         return fore.rtre.server.Service.IfcMergeService.mergeIfc(file, mergeFile2,paramName,paramDescription);
     }
