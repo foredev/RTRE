@@ -386,7 +386,7 @@ describe('User and project management test', () => {
     
           cy.wait('@getProjectList', {timeout:20000}).then((intercept) => {
             expect(intercept.response.body.length).to.be.greaterThan(0)
-            var number = intercept.response.body[1].oid
+            var number = intercept.response.body[2].oid
             let id = number
             console.log(id)
             cy.wrap(id).as('id')
