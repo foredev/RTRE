@@ -20,7 +20,7 @@ import java.util.UUID;
 @Service
 public class IfcMergeService {
 
-    public static ResponseEntity<String> mergeIfc(MultipartFile file, long mergeFile2,String name, String description){
+    public static ResponseEntity<String> mergeIfc(MultipartFile file, long mergeFile2){
         String scriptPath = "src/main/resources/script/";
         String tempFolderPath = "src/main/resources/MergeTemporaryFolder/";
         Runtime rt = Runtime.getRuntime();
@@ -68,7 +68,7 @@ public class IfcMergeService {
             long mergeParentOid = secondMergeFile.getParentId();
             SDeserializerPluginConfiguration deserializer = BimserverConfig.client.getServiceInterface().getSuggestedDeserializerForExtension("ifc", mergeParentOid);
             String nameOfDeserializer = deserializer.getName().replace(" (Streaming)","");
-            SProject newProject = BimserverConfig.client.getServiceInterface().addProjectAsSubProject(name, mergeParentOid,nameOfDeserializer );
+            SProject newProject = BimserverConfig.client.getServiceInterface().addProjectAsSubProject(uuidProduct.toString(), mergeParentOid,nameOfDeserializer );
             System.out.println(newProject.getOid() + newProject.getName()+ newProject.getSchema());
             BimserverConfig.client.checkinSync(newProject.getOid(), "", deserializer.getOid(), false, outputFile.toPath());
             System.out.println("done Checking in");
@@ -81,20 +81,18 @@ public class IfcMergeService {
             Files.delete(uploaded.toPath());
             Files.delete(local.toPath());
             Files.delete(output.toPath());
-            newProject.setDescription(description);
-            BimserverConfig.client.getServiceInterface().updateProject(newProject);
             return new ResponseEntity<String>("Success", HttpStatus.valueOf(200));
 
         } catch (ServerException e) {
-            return new ResponseEntity<String>("Internal server error, ServerException", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (UserException e) {
-            return new ResponseEntity<String>("Bad Request, no duplicate names", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
             return new ResponseEntity<String>(errors.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (InterruptedException e) {
-            return new ResponseEntity<String>("Internal server error, interruptedException", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }

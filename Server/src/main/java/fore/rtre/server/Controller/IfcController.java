@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins="*")
 public class IfcController {
 
     private final IfcPostService HelloService;
@@ -32,133 +32,130 @@ public class IfcController {
 
     @PostMapping("/postIfcAsSubProject")
     @ResponseBody
-    public ResponseEntity<String> postIfc(@RequestParam("file") MultipartFile file, Long parentPoid, String name, String description) {
-        return IfcPostService.postIfc(file, parentPoid, name, description);
+    public ResponseEntity<String> postIfc(@RequestParam("file") MultipartFile file, String schema, Long parentPoid){
+        return IfcPostService.postIfc(file, schema, parentPoid);
     }
 
     @GetMapping("/getIfc")
     @ResponseBody
-    public ResponseEntity<String> getIfc(@RequestParam Long fileName, HttpServletResponse response, Optional<String> query) {
+    public ResponseEntity<String> getIfc(@RequestParam Long fileName, HttpServletResponse response,Optional<String> query){
         String paramQuery = query.orElse("{}");
-        return IfcGetService.downloadIfc(fileName, response, paramQuery);
-    }
+        return IfcGetService.downloadIfc(fileName,response, paramQuery);}
 
     @GetMapping("/getProjectList")
     @ResponseBody
-    public ResponseEntity<String> getProjectList(@RequestParam String token) {
+    public ResponseEntity<String> getProjectList(@RequestParam String token){
         return IfcGetService.authGetAllProjects(token);
     }
 
     @GetMapping("/deleteProject")
     @ResponseBody
-    public ResponseEntity<String> deleteProject(@RequestParam Long oid) {
+    public ResponseEntity<String> deleteProject(@RequestParam Long oid){
         return IfcPostService.deleteProject(oid);
     }
 
     @PostMapping("/merge")
     @ResponseBody
-    public ResponseEntity<String> merge(@RequestParam("file") MultipartFile file, long mergeFile2, String name, String description) {
-        return fore.rtre.server.Service.IfcMergeService.mergeIfc(file, mergeFile2,name,description);
-    }
+    public ResponseEntity<String> merge(@RequestParam("file") MultipartFile file, long mergeFile2) {
+        return fore.rtre.server.Service.IfcMergeService.mergeIfc(file, mergeFile2);}
 
     @GetMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestParam String username, String password) {
-        return AuthenticationService.login(username, password);
+    public ResponseEntity<String> login(@RequestParam String username,String password){
+        return AuthenticationService.login(username,password);
     }
 
     @GetMapping("/AddUserToProject")
     @ResponseBody
-    public ResponseEntity<String> AddUserToProject(@RequestParam Long parent0Id, String username, String token) {
-        return AdminManagement.addUser(parent0Id, username, token);
+    public ResponseEntity<String> AddUserToProject(@RequestParam Long parent0Id,String username, String token){
+        return AdminManagement.addUser(parent0Id,username, token);
     }
 
     @GetMapping("/RemoveUserFromProject")
     @ResponseBody
-    public ResponseEntity<String> RemoveUserFromProject(@RequestParam Long parent0Id, String username, String token) {
-        return AdminManagement.removeUserProject(parent0Id, username, token);
+    public ResponseEntity<String> RemoveUserFromProject(@RequestParam Long parent0Id,String username, String token){
+        return AdminManagement.removeUserProject(parent0Id,username, token);
     }
 
     @GetMapping("/ViewUsers")
     @ResponseBody
-    public ResponseEntity<String> ViewUsers(@RequestParam Long parent0Id, String token) {
+    public ResponseEntity<String> ViewUsers(@RequestParam Long parent0Id, String token){
         return AdminManagement.ViewUsers(parent0Id, token);
     }
 
     @GetMapping("/getAllUsers")
     @ResponseBody
-    public ResponseEntity<String> getAllUsers(@RequestParam String token) {
+    public ResponseEntity<String> getAllUsers(@RequestParam String token){
         return AdminManagement.getAllUsers(token);
     }
 
     @GetMapping("/getAllUsers!Admin")
     @ResponseBody
-    public ResponseEntity<String> getAllUsers_noAdmin(@RequestParam String token) {
+    public ResponseEntity<String> getAllUsers_noAdmin(@RequestParam String token){
         return AdminManagement.getAllUsers_noAdmin(token);
     }
 
     @GetMapping("/CreateProject")
     @ResponseBody
-    public ResponseEntity<String> createProject(@RequestParam String projectName, String schema, String token) {
+    public ResponseEntity<String> createProject(@RequestParam String projectName, String schema, String token){
         return AdminManagement.createProject(projectName, schema, token);
     }
 
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<String> register(@RequestParam String emailUsername, String password, String name) {
-        return AuthenticationService.register(emailUsername, password, name);
+    public ResponseEntity<String> register (@RequestParam String emailUsername, String password, String name){
+        return AuthenticationService.register(emailUsername, password,name);
     }
 
     @GetMapping("/sendMessage")
-    public ResponseEntity<String> sendMessage(@RequestParam String token, String message, Long from, Long to, String date) {
+    public ResponseEntity<String> sendMessage (@RequestParam String token, String message, Long from, Long to, String date){
         return FirebaseService.sendMessage(token, message, from, to, date);
     }
 
     @GetMapping("/getAllNotification")
-    public ResponseEntity<String> getAllNotification(@RequestParam String username, String uuid) {
-        return FirebaseService.getAllNotification(username, uuid);
+    public ResponseEntity<String> getAllNotification(@RequestParam String username, String uuid){
+        return FirebaseService.getAllNotification(username,uuid);
     }
 
     @GetMapping("/getUserMessages")
-    public ResponseEntity<String> getUserMessages(@RequestParam String token, String username) {
+    public ResponseEntity<String> getUserMessages(@RequestParam String token, String username){
         return FirebaseService.getUserMessages(token, username);
     }
 
     @GetMapping("/readMessages")
-    public ResponseEntity<String> readMessages(@RequestParam String token, String username, Long sender) {
+    public ResponseEntity<String> readMessages(@RequestParam String token, String username, Long sender){
         return FirebaseService.readMessages(token, username, sender);
     }
 
     @DeleteMapping("/deleteNotification")
-    public ResponseEntity<String> deleteNotification(@RequestParam String uuid, String username, Long postId) {
-        return FirebaseService.deleteNotification(uuid, username, postId);
+    public ResponseEntity<String> deleteNotification(@RequestParam String uuid,String username, Long postId){
+        return FirebaseService.deleteNotification(uuid, username,postId);
     }
-
     @GetMapping("/getQuerys")
-    public ResponseEntity<String> getQuerys(@RequestParam String token, String queryName) {
+    public ResponseEntity<String> getQuerys(@RequestParam String token, String queryName){
         return FirebaseService.getQuerys(token, queryName);
     }
 
     @PostMapping("/sendQuery")
     @ResponseBody
-    public ResponseEntity<String> sendQuery(@RequestParam String token, String receievingUser, String queryTopic, String Query) {
+    public ResponseEntity<String> sendQuery (@RequestParam String token, String receievingUser, String queryTopic, String Query){
         return FirebaseService.sendQuery(token, receievingUser, queryTopic, Query);
     }
 
     @GetMapping("/getUserQuerys")
-    public ResponseEntity<String> getUserQuerys(@RequestParam String oid) {
+    public ResponseEntity<String> getUserQuerys(@RequestParam String oid){
         return FirebaseService.getUserQuerys(oid);
     }
 
     @DeleteMapping("/deleteUserQuery")
-    public ResponseEntity<String> deleteUserQuery(@RequestParam String oid, String queryName) {
+    public ResponseEntity<String> deleteUserQuery(@RequestParam String oid, String queryName){
         return FirebaseService.deleteUserQUery(oid, queryName);
     }
 
     @GetMapping("/getDateAndSubProject")
-    public ResponseEntity<String> getSingleProject(@RequestParam String token, Long id) {
-        return IfcGetService.authGetDateAndSubProject(token, id);
+    public ResponseEntity<String> getSingleProject(@RequestParam String token, Long id){
+        return IfcGetService.authGetDateAndSubProject(token,id);
     }
 }
 

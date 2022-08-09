@@ -30,7 +30,6 @@
                             <li>Schema: {{subProjects.schema}}</li>
                             <li>parentId : {{ subProjects.parentId }}</li>
                             <li>Date of Creation : {{ subProjects.createdDate }}</li>
-                            <li>Description : <p>{{ subProjects.description}}</p></li>
                         </v-expansion-panel-content>
                     </v-expansion-panel>
                 </v-expansion-panels>

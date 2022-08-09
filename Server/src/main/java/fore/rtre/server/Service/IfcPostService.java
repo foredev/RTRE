@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.bimserver.interfaces.objects.SProject;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,15 +24,16 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class IfcPostService {
-    public static ResponseEntity<String> postIfc(MultipartFile file, Long parentPoid, String name , String description) {
+    public static ResponseEntity<String> postIfc(MultipartFile file, String schema, Long parentPoid){
         try {
-            String parentSchema = BimserverConfig.client.getServiceInterface().getProjectByPoid(parentPoid).getSchema();
-            String schema = parentSchema.substring(0, 1).toUpperCase() + parentSchema.substring(1);
+            if(!(schema.toLowerCase().equals(BimserverConfig.client.getServiceInterface().getProjectByPoid(parentPoid).getSchema()))){
+                throw new IllegalArgumentException();
+            }
             String relativeFolder = "src\\main\\resources\\BimServerInstallTempFolder\\";
             UUID uniqueId = UUID.randomUUID();
-            String uniqueName = file.getName() + "-" + uniqueId;
+            String uniqueName = file.getName()+ "-"+ uniqueId;
 
-            SProject newProject = BimserverConfig.client.getServiceInterface().addProjectAsSubProject(name, parentPoid, schema);
+            SProject newProject = BimserverConfig.client.getServiceInterface().addProjectAsSubProject(uniqueName, parentPoid,schema);
             long poid = newProject.getOid();
             File fileOfSubject = new File(relativeFolder + uniqueName + ".ifc");
             try {
@@ -45,28 +45,26 @@ public class IfcPostService {
             SDeserializerPluginConfiguration deserializer = BimserverConfig.client.getServiceInterface().getSuggestedDeserializerForExtension("ifc", poid);
 
             // Make sure you change this to a path to a local IFC file
-            Path demoIfcFile = Paths.get(relativeFolder + uniqueName + ".ifc");
+            Path demoIfcFile = Paths.get(relativeFolder+uniqueName +".ifc");
 
             // Here we actually checkin the IFC file. Flow.SYNC indicates that we only want to continue the code-flow after the checkin has been completed
-            SLongActionState state = BimserverConfig.client.checkinSync(poid, "", deserializer.getOid(), false, demoIfcFile);
-            newProject.setDescription(description);
-            BimserverConfig.client.getServiceInterface().updateProject(newProject);
+            SLongActionState state = BimserverConfig.client.checkinSync(poid,"",deserializer.getOid(),false,demoIfcFile);
             Files.delete(fileOfSubject.toPath());
-
+            
             List<SUser> allUsers = BimserverConfig.client.getServiceInterface().getAllAuthorizedUsersOfProject(parentPoid);
 
-            for (SUser sUser : allUsers) {
-                BimserverConfig.client.getServiceInterface().addUserToProject(sUser.getOid(), newProject.getOid());
+            for(SUser sUser: allUsers){
+                BimserverConfig.client.getServiceInterface().addUserToProject(sUser.getOid(),  newProject.getOid());
             }
-
+            
             allUsers = BimserverConfig.client.getServiceInterface().getAllAuthorizedUsersOfProject(newProject.getOid());
-
+        
             for (SUser sUser : allUsers) {
                 String uuid = BimserverConfig.client.getServiceInterface().getUserByUoid(sUser.getOid()).getUuid().toString();
                 Notification newPostNotification = new Notification(newProject.getOid(), false, String.valueOf(sUser.getOid()) + uuid);
                 FirebaseService.postNotification(newPostNotification);
             }
-            if (!state.getErrors().isEmpty()) {
+            if(!state.getErrors().isEmpty()){
                 return new ResponseEntity<String>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (ServiceException | PublicInterfaceNotFoundException | IOException | IllegalArgumentException e) {
@@ -80,7 +78,7 @@ public class IfcPostService {
         return new ResponseEntity<String>("Success", HttpStatus.valueOf(200));
     }
 
-    public static ResponseEntity<String> deleteProject(Long oid) {
+    public static ResponseEntity<String> deleteProject(Long oid){
 
         try {
             BimserverConfig.client.getServiceInterface().deleteProject(oid);
