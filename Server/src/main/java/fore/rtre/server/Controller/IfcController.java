@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.Response;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -32,8 +33,10 @@ public class IfcController {
 
     @PostMapping("/postIfcAsSubProject")
     @ResponseBody
-    public ResponseEntity<String> postIfc(@RequestParam("file") MultipartFile file, Long parentPoid, String name, String description) {
-        return IfcPostService.postIfc(file, parentPoid, name, description);
+    public ResponseEntity<String> postIfc(@RequestParam("file") MultipartFile file, Long parentPoid, Optional<String> name, Optional<String> description) {
+        String paramName = name.orElse(UUID.randomUUID().toString());
+        String paramDescription = description.orElse("");
+        return IfcPostService.postIfc(file, parentPoid, paramName, paramDescription);
     }
 
     @GetMapping("/getIfc")
@@ -57,8 +60,10 @@ public class IfcController {
 
     @PostMapping("/merge")
     @ResponseBody
-    public ResponseEntity<String> merge(@RequestParam("file") MultipartFile file, long mergeFile2, String name, String description) {
-        return fore.rtre.server.Service.IfcMergeService.mergeIfc(file, mergeFile2,name,description);
+    public ResponseEntity<String> merge(@RequestParam("file") MultipartFile file, long mergeFile2, Optional<String> name, Optional<String> description) {
+        String paramName = name.orElse(UUID.randomUUID().toString());
+        String paramDescription = description.orElse("");
+        return fore.rtre.server.Service.IfcMergeService.mergeIfc(file, mergeFile2,paramName,paramDescription);
     }
 
     @GetMapping("/login")
