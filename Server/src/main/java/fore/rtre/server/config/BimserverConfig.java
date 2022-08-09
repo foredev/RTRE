@@ -11,9 +11,13 @@ import org.bimserver.shared.exceptions.BimServerClientException;
 import org.bimserver.shared.exceptions.ServerException;
 import org.bimserver.shared.exceptions.ServiceException;
 import org.bimserver.shared.exceptions.UserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.List;
+
+import static fore.rtre.server.Main.BimPort;
 
 
 @Service
@@ -25,16 +29,16 @@ public class BimserverConfig {
 
     @PostConstruct
     public void BimserverInit(){
-
+        Logger logger = LoggerFactory.getLogger(BimserverConfig.class);
             try {
-                factory = new JsonBimServerClientFactory(Main.BimPort);
+                factory = new JsonBimServerClientFactory(BimPort);
                 client = factory.create(new UsernamePasswordAuthenticationInfo("admin@admin.com", "password"));
 
             } catch (BimServerClientException | ServiceException | ChannelConnectionException e) {
-                System.out.println("Initializing Bimserver...");
+                logger.info("Initializing Bimserver...");
                 try{
-                    factory = new JsonBimServerClientFactory(Main.BimPort);
-                    factory.create().getAdminInterface().setup("http://localhost:8082", "", "", "/img/bimserver.png", "Administrator", "admin@admin.com", "password");
+                    factory = new JsonBimServerClientFactory(BimPort);
+                    factory.create().getAdminInterface().setup(BimPort, "", "", "/img/bimserver.png", "Administrator", "admin@admin.com", "password");
                     client = factory.create(new UsernamePasswordAuthenticationInfo("admin@admin.com", "password"));
                     client.getServiceInterface().checkInternetConnection();
                     List<SExtendedDataSchema> allSchemas =
@@ -69,8 +73,7 @@ public class BimserverConfig {
                     }
                     client.getPluginInterface().installPluginBundle("central (https://repo1.maven.org/maven2/, default, releases+snapshots)", "org.opensourcebim", "ifcplugins", "0.0.99", pluginInformation);
                     client.getPluginInterface().setDefaultRenderEngine(client.getPluginInterface().getAllRenderEngines(false).get(0).getOid());
-                    System.out.println("Setup done and connected to Bimserver!");
-
+                    logger.info("Setup done and connected to Bimserver!");
                 } catch (ServerException serverException) {
                     serverException.printStackTrace();
                 } catch (UserException userException) {
